@@ -1,5 +1,5 @@
 #db
-./prisma/*.db
+/prisma/*.db
 
 # compiled output
 /dist
