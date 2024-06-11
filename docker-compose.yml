@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  nestjs:
+    image: node:20 # Use the official Node.js image as the base image
+    working_dir: /app # Set the working directory inside the container to /app
+    volumes:
+      - .:/app # Mount the current directory to /app in the container
+      # - /app/node_modules  # Persist node_modules to avoid reinstalling dependencies on each build
+    env_file:
+      - .env # Load environment variables from the .env file
+    command: sh -c "npm install && npm run start:dev" # Command to run after the container starts
+    ports:
+      - '3001:3001' # Map port 3000 of the host to port 3000 in the container
+    depends_on:
+      - db # Ensure the db service is started before this service
+
+  db:
+    image: nouchka/sqlite3 # Use a lightweight SQLite3 image
+    volumes:
+      - ./prisma:/data # Mount the prisma directory to /data in the container
