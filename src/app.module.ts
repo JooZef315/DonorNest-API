@@ -5,7 +5,8 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { CampaignsModule } from './campaigns/campaigns.module';
 import { DonationsModule } from './donations/donations.module';
-import { PrismaModule } from './prisma/prisma.module';
+import { DbModule } from './db/db.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -13,7 +14,10 @@ import { PrismaModule } from './prisma/prisma.module';
     AuthModule,
     CampaignsModule,
     DonationsModule,
-    PrismaModule,
+    DbModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
