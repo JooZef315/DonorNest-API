@@ -1,7 +1,7 @@
 import { Controller, Get, Post } from '@nestjs/common';
 import { DonationsService } from './donations.service';
 
-@Controller('api/v1/campaigns/:id/donations')
+@Controller('campaigns/:id/donations')
 export class DonationsController {
   constructor(private readonly donationsService: DonationsService) {}
 

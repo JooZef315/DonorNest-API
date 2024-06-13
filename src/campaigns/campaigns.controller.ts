@@ -1,7 +1,7 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common';
 import { CampaignsService } from './campaigns.service';
 
-@Controller('api/v1/campaigns')
+@Controller('campaigns')
 export class CampaignsController {
   constructor(private readonly campaignsService: CampaignsService) {}
 

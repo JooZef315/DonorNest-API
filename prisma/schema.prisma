@@ -20,7 +20,7 @@ model Users {
   hashedPassword String
   role           String      @default("OFFICIAL")
   isVerfied      Boolean     @default(false)
-  officiaIdPic   String
+  officialIdPic  String
   campaaign      Campaaigns?
 }
 

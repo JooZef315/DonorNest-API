@@ -1,7 +1,18 @@
-import { Controller, Delete, Get, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
+import { CreateUserDto } from './dto/createUserDto';
+import { EditUserDto } from './dto/editUserDto';
 
-@Controller('api/v1/users')
+@Controller('users')
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
 
@@ -11,27 +22,30 @@ export class UsersController {
   }
 
   @Post()
-  createUser() {
-    return this.userService.createUser();
+  createUser(@Body() createUserDto: CreateUserDto) {
+    return this.userService.createUser(createUserDto);
   }
 
   @Get(':id')
-  getUser() {
-    return this.userService.getUser();
+  getUser(@Param('id', ParseUUIDPipe) uid: string) {
+    return this.userService.getUser(uid);
   }
 
   @Put(':id')
-  editUser() {
-    return this.userService.editUser();
+  editUser(
+    @Param('id', ParseUUIDPipe) uid: string,
+    @Body() editUserDto: EditUserDto,
+  ) {
+    return this.userService.editUser(uid, editUserDto);
   }
 
   @Delete(':id')
-  deleteUser() {
-    return this.userService.deleteUser();
+  deleteUser(@Param('id', ParseUUIDPipe) uid: string) {
+    return this.userService.deleteUser(uid);
   }
 
   @Put(':id/verfiy')
-  verfiyUser() {
-    return this.userService.verfiyUser();
+  verfiyUser(@Param('id', ParseUUIDPipe) uid: string) {
+    return this.userService.verfiyUser(uid);
   }
 }

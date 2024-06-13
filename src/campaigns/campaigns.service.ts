@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import { DbService } from 'src/db/db.service';
 
 @Injectable()
 export class CampaignsService {
+  constructor(private dbService: DbService) {}
   getCampaigns() {
     return 'Campaigns';
   }
