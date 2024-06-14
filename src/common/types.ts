@@ -1,4 +1,4 @@
-type Role = 'OFFICIAL' | 'ADMIN';
+/* eslint-disable @typescript-eslint/no-unused-vars */
 type Purpose =
   | 'MEDICAL_EXPENSES'
   | 'HUMANITARIAN_AID'

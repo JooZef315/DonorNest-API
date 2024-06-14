@@ -17,7 +17,7 @@ model Users {
   id             String      @id @default(uuid())
   name           String
   email          String      @unique
-  hashedPassword String
+  hashedPassowrd String
   role           String      @default("OFFICIAL")
   isVerfied      Boolean     @default(false)
   officialIdPic  String

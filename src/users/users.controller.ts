@@ -7,10 +7,13 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  UsePipes,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/createUserDto';
 import { EditUserDto } from './dto/editUserDto';
+import { userExistsPipe } from 'src/common/pipes/userExists.pipe';
+import { transformEditUserDto } from 'src/common/pipes/transformEditUserDto.pipe';
 
 @Controller('users')
 export class UsersController {
@@ -27,11 +30,13 @@ export class UsersController {
   }
 
   @Get(':id')
+  @UsePipes(userExistsPipe)
   getUser(@Param('id', ParseUUIDPipe) uid: string) {
     return this.userService.getUser(uid);
   }
 
   @Put(':id')
+  @UsePipes(userExistsPipe, transformEditUserDto)
   editUser(
     @Param('id', ParseUUIDPipe) uid: string,
     @Body() editUserDto: EditUserDto,
@@ -39,12 +44,15 @@ export class UsersController {
     return this.userService.editUser(uid, editUserDto);
   }
 
+  //TODO: check no campaigns are still open
   @Delete(':id')
+  @UsePipes(userExistsPipe)
   deleteUser(@Param('id', ParseUUIDPipe) uid: string) {
     return this.userService.deleteUser(uid);
   }
 
   @Put(':id/verfiy')
+  @UsePipes(userExistsPipe)
   verfiyUser(@Param('id', ParseUUIDPipe) uid: string) {
     return this.userService.verfiyUser(uid);
   }
