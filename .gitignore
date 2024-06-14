@@ -1,7 +1,6 @@
 #db
-prisma/*.db
-prisma/nestDonor.db
 *.db
+prisma/*.db
 
 # compiled output
 /dist

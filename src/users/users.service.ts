@@ -15,11 +15,11 @@ export class UsersService {
   constructor(private db: DbService) {}
   async getUsers() {
     const users = await this.db.users.findMany({
-      where: {
-        role: {
-          equals: userRoles.OFFICIAL,
-        },
-      },
+      // where: {
+      //   role: {
+      //     equals: userRoles.OFFICIAL,
+      //   },
+      // },
       select: {
         id: true,
         name: true,
