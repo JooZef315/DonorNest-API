@@ -7,19 +7,24 @@ import {
 import { DbService } from 'src/db/db.service';
 import { CreateUserDto } from './dto/createUserDto';
 import { userRoles } from 'src/common/enum';
-import { createPrismaErrorMessage } from 'src/common/utils/prismaErrorMessage';
 import { EditUserDto } from './dto/editUserDto';
+import { ConfigService } from '@nestjs/config';
+import { UploadClient } from '@uploadcare/upload-client';
 
 @Injectable()
 export class UsersService {
-  constructor(private db: DbService) {}
+  constructor(
+    private db: DbService,
+    private config: ConfigService,
+  ) {}
+
   async getUsers() {
     const users = await this.db.users.findMany({
-      // where: {
-      //   role: {
-      //     equals: userRoles.OFFICIAL,
-      //   },
-      // },
+      where: {
+        role: {
+          equals: userRoles.OFFICIAL,
+        },
+      },
       select: {
         id: true,
         name: true,
@@ -35,33 +40,47 @@ export class UsersService {
     return users;
   }
 
-  async createUser(createUserDto: CreateUserDto) {
-    try {
-      const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-
-      const newUser = await this.db.users.create({
-        data: {
-          name: createUserDto.name,
-          email: createUserDto.email,
-          hashedPassword,
-          officialIdPic: createUserDto.officialIdPic,
-          isVerfied: false,
-          role: userRoles.OFFICIAL,
-        },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          officialIdPic: true,
-          role: true,
-          isVerfied: true,
-        },
-      });
-      return newUser;
-    } catch (error) {
-      const errMsg = createPrismaErrorMessage(error);
-      throw new InternalServerErrorException(errMsg);
+  async createUser(
+    createUserDto: CreateUserDto,
+    officialId: Express.Multer.File,
+  ) {
+    if (!officialId) {
+      throw new BadRequestException('must upload your official Id image');
     }
+
+    const existedUser = await this.db.users.findUnique({
+      where: {
+        email: createUserDto.email,
+      },
+    });
+
+    if (existedUser) {
+      throw new BadRequestException('Email already exists');
+    }
+
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+    const officialIdPic = await this.uploadImage(officialId.buffer);
+
+    const newUser = await this.db.users.create({
+      data: {
+        name: createUserDto.name,
+        email: createUserDto.email,
+        hashedPassword,
+        officialIdPic,
+        isVerfied: false,
+        role: userRoles.OFFICIAL,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        officialIdPic: true,
+        role: true,
+        isVerfied: true,
+      },
+    });
+
+    return newUser;
   }
 
   async getUser(uid: string) {
@@ -141,5 +160,22 @@ export class UsersService {
     });
 
     return `User ${verfiedUser.name} was verfied successfully!`;
+  }
+
+  async uploadImage(imageBuffer: Buffer) {
+    const uploadCare_secret = this.config.get<string>('UPLOADCARE_SECRET');
+    const client = new UploadClient({
+      publicKey: uploadCare_secret,
+    });
+    try {
+      const result = await client.uploadFile(imageBuffer);
+      const imageUrl =
+        result.cdnUrl + result.name + '.' + result.imageInfo.format;
+      return imageUrl;
+    } catch (error: any) {
+      throw new InternalServerErrorException(
+        `Error reading uploaded id image: ${error.message}`,
+      );
+    }
   }
 }

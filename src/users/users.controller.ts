@@ -7,6 +7,8 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  UploadedFile,
+  UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
@@ -14,6 +16,7 @@ import { CreateUserDto } from './dto/createUserDto';
 import { EditUserDto } from './dto/editUserDto';
 import { userExistsPipe } from 'src/common/pipes/userExists.pipe';
 import { transformEditUserDto } from 'src/common/pipes/transformEditUserDto.pipe';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('users')
 export class UsersController {
@@ -25,8 +28,12 @@ export class UsersController {
   }
 
   @Post()
-  createUser(@Body() createUserDto: CreateUserDto) {
-    return this.userService.createUser(createUserDto);
+  @UseInterceptors(FileInterceptor('officialId'))
+  createUser(
+    @Body() createUserDto: CreateUserDto,
+    @UploadedFile() officialId: Express.Multer.File,
+  ) {
+    return this.userService.createUser(createUserDto, officialId);
   }
 
   @Get(':id')
