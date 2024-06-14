@@ -1,5 +1,6 @@
 #db
 prisma/*.db
+prisma/nestDonor.db
 *.db
 
 # compiled output
