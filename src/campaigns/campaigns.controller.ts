@@ -1,26 +1,47 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   Param,
+  ParseEnumPipe,
+  ParseIntPipe,
   ParseUUIDPipe,
   Post,
   Put,
+  Query,
   UsePipes,
 } from '@nestjs/common';
 import { CampaignsService } from './campaigns.service';
 import { CreateCampaignDto } from './dto/createCampaignDto';
 import { campaignExistsPipe } from 'src/common/pipes/campaignExists.pipe';
 import { EditCampaignDto } from './dto/editCampaignDto';
+import { CampaignPurpose } from 'src/common/enum';
 
 @Controller('campaigns')
 export class CampaignsController {
   constructor(private readonly campaignsService: CampaignsService) {}
 
   @Get()
-  getCampaigns() {
-    return this.campaignsService.getCampaigns();
+  getCampaigns(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query(
+      'purpose',
+      new ParseEnumPipe(CampaignPurpose, {
+        optional: true,
+      }),
+    )
+    purpose: string,
+    @Query('search') search: string,
+  ) {
+    const CAMPAIGNS_PER_PAGE = 2;
+    return this.campaignsService.getCampaigns(
+      search,
+      purpose,
+      page,
+      CAMPAIGNS_PER_PAGE,
+    );
   }
 
   @Post()

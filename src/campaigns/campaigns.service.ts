@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
@@ -13,8 +14,35 @@ import { EditCampaignDto } from './dto/editCampaignDto';
 export class CampaignsService {
   constructor(private db: DbService) {}
 
-  async getCampaigns() {
+  async getCampaigns(
+    search: string,
+    purpose: string,
+    page: number,
+    CAMPAIGNS_PER_PAGE: number,
+  ) {
+    const CampaignsCount = await this.db.campaaigns.count({
+      where: {
+        name: {
+          contains: search?.trim().toLocaleLowerCase(),
+        },
+        purpose,
+      },
+    });
+    const totalPagesCount = Math.ceil(CampaignsCount / CAMPAIGNS_PER_PAGE);
+
+    if (page > totalPagesCount && totalPagesCount > 0) {
+      throw new BadRequestException(
+        `only pages between 1 and ${totalPagesCount} allowed`,
+      );
+    }
+
     const campaigns = await this.db.campaaigns.findMany({
+      where: {
+        name: {
+          contains: search?.trim().toLocaleLowerCase(),
+        },
+        purpose,
+      },
       select: {
         id: true,
         name: true,
@@ -29,6 +57,8 @@ export class CampaignsService {
           },
         },
       },
+      skip: (page - 1) * CAMPAIGNS_PER_PAGE,
+      take: CAMPAIGNS_PER_PAGE,
     });
     return campaigns;
   }
