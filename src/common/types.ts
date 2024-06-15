@@ -5,5 +5,5 @@ type Purpose =
   | 'SOCIAL_JUSTICE_CAUSES'
   | 'COMMUNITY_PROJECTS'
   | 'DISASTER_RELIEF';
-type CampaaignStatus = 'NEEDING' | 'COMPLETED';
+type CampaaignStatus = 'OPEN' | 'COMPLETED';
 type DonationStatus = 'PENDING' | 'SUCCESSFUL' | 'FAILED';

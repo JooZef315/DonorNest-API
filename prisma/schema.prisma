@@ -34,13 +34,13 @@ model Campaaigns {
   amountRaised    Int         @default(0)
   amountLeft      Int         @default(0)
   purpose         String
-  CampaaignStatus String      @default("NEEDING")
+  CampaaignStatus String      @default("OPEN")
   donations       Donations[]
 }
 
 model Donations {
   id              Int        @id @default(autoincrement())
-  amountRequired  Int
+  amount          Int
   message         String?
   stripePaymentId String     @unique()
   donationStatus  String     @default("PENDING")
