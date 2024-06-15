@@ -14,21 +14,21 @@ datasource db {
 }
 
 model Users {
-  id             String      @id @default(uuid())
+  id             String       @id @default(uuid())
   name           String
-  email          String      @unique
+  email          String       @unique
   hashedPassword String
-  role           String      @default("OFFICIAL")
-  isVerfied      Boolean     @default(false)
+  role           String       @default("OFFICIAL")
+  isVerfied      Boolean      @default(false)
   officialIdPic  String
-  campaaign      Campaaigns?
+  campaaign      Campaaigns[]
 }
 
 model Campaaigns {
   id              String      @id @default(uuid())
   name            String      @unique
   description     String?
-  officialId      String      @unique()
+  officialId      String
   official        Users       @relation(fields: [officialId], references: [id], onDelete: Cascade)
   amountRequired  Int
   amountRaised    Int         @default(0)

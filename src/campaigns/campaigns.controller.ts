@@ -1,5 +1,18 @@
-import { Controller, Delete, Get, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Put,
+  UsePipes,
+} from '@nestjs/common';
 import { CampaignsService } from './campaigns.service';
+import { CreateCampaignDto } from './dto/createCampaignDto';
+import { campaignExistsPipe } from 'src/common/pipes/campaignExists.pipe';
+import { EditCampaignDto } from './dto/editCampaignDto';
 
 @Controller('campaigns')
 export class CampaignsController {
@@ -10,23 +23,29 @@ export class CampaignsController {
     return this.campaignsService.getCampaigns();
   }
 
-  @Get(':id')
-  getCampaign() {
-    return this.campaignsService.getCampaign();
-  }
-
   @Post()
-  addCampaign() {
-    return this.campaignsService.addCampaign();
+  addCampaign(@Body() createCampaignDto: CreateCampaignDto) {
+    return this.campaignsService.addCampaign(createCampaignDto);
   }
 
-  @Delete(':id')
-  deleteCampaign() {
-    return this.campaignsService.deleteCampaign();
+  @Get(':id')
+  @UsePipes(campaignExistsPipe)
+  getCampaign(@Param('id', ParseUUIDPipe) id: string) {
+    return this.campaignsService.getCampaign(id);
   }
 
   @Put(':id')
-  closeCampaign() {
-    return this.campaignsService.closeCampaign();
+  @UsePipes(campaignExistsPipe)
+  editCampaign(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() editCampaignDto: EditCampaignDto,
+  ) {
+    return this.campaignsService.editCampaign(id, editCampaignDto);
+  }
+
+  @Delete(':id')
+  @UsePipes(campaignExistsPipe)
+  deleteCampaign(@Param('id', ParseUUIDPipe) id: string) {
+    return this.campaignsService.deleteCampaign(id);
   }
 }
