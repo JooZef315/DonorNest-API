@@ -17,7 +17,7 @@ import { CampaignsService } from './campaigns.service';
 import { CreateCampaignDto } from './dto/createCampaignDto';
 import { campaignExistsPipe } from 'src/common/pipes/campaignExists.pipe';
 import { EditCampaignDto } from './dto/editCampaignDto';
-import { CampaignPurpose } from 'src/common/enum';
+import { CampaignPurposeEnum } from 'src/common/enum';
 
 @Controller('campaigns')
 export class CampaignsController {
@@ -28,7 +28,7 @@ export class CampaignsController {
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query(
       'purpose',
-      new ParseEnumPipe(CampaignPurpose, {
+      new ParseEnumPipe(CampaignPurposeEnum, {
         optional: true,
       }),
     )

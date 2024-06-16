@@ -14,37 +14,37 @@ datasource db {
 }
 
 model Users {
-  id             String       @id @default(uuid())
+  id             String      @id @default(uuid())
   name           String
-  email          String       @unique
+  email          String      @unique
   hashedPassword String
-  role           String       @default("OFFICIAL")
-  isVerfied      Boolean      @default(false)
+  role           String      @default("OFFICIAL")
+  isVerfied      Boolean     @default(false)
   officialIdPic  String
-  campaaign      Campaaigns[]
+  campaign       Campaigns[]
 }
 
-model Campaaigns {
-  id              String      @id @default(uuid())
-  name            String      @unique
-  description     String?
-  officialId      String
-  official        Users       @relation(fields: [officialId], references: [id], onDelete: Cascade)
-  amountRequired  Int
-  amountRaised    Int         @default(0)
-  amountLeft      Int         @default(0)
-  purpose         String
-  CampaaignStatus String      @default("OPEN")
-  donations       Donations[]
+model Campaigns {
+  id             String      @id @default(uuid())
+  name           String      @unique
+  description    String?
+  officialId     String
+  official       Users       @relation(fields: [officialId], references: [id], onDelete: Cascade)
+  amountRequired Int
+  amountLeft     Int
+  amountRaised   Int         @default(0)
+  purpose        String
+  campaignStatus String      @default("OPEN")
+  donations      Donations[]
 }
 
 model Donations {
-  id              Int        @id @default(autoincrement())
+  id              Int       @id @default(autoincrement())
   amount          Int
   message         String?
-  stripePaymentId String     @unique()
-  donationStatus  String     @default("PENDING")
-  donatedAt       DateTime   @default(now())
-  campaaignId     String
-  campaaign       Campaaigns @relation(fields: [campaaignId], references: [id])
+  stripePaymentId String    @unique()
+  donationStatus  String    @default("PENDING")
+  donatedAt       DateTime  @default(now())
+  campaignId      String
+  campaign        Campaigns @relation(fields: [campaignId], references: [id], onDelete: Cascade)
 }

@@ -3,11 +3,12 @@ import {
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { DbService } from 'src/db/db.service';
 import { CreateCampaignDto } from './dto/createCampaignDto';
 import { createPrismaErrorMessage } from 'src/common/utils/createPrismaErrorMessage';
-import { CampaaignStatus, DonationStatus } from 'src/common/enum';
+import { CampaignStatusEnum, DonationStatusEnum } from 'src/common/enum';
 import { EditCampaignDto } from './dto/editCampaignDto';
 
 @Injectable()
@@ -20,7 +21,7 @@ export class CampaignsService {
     page: number,
     CAMPAIGNS_PER_PAGE: number,
   ) {
-    const CampaignsCount = await this.db.campaaigns.count({
+    const CampaignsCount = await this.db.campaigns.count({
       where: {
         name: {
           contains: search?.trim().toLocaleLowerCase(),
@@ -28,6 +29,7 @@ export class CampaignsService {
         purpose,
       },
     });
+
     const totalPagesCount = Math.ceil(CampaignsCount / CAMPAIGNS_PER_PAGE);
 
     if (page > totalPagesCount && totalPagesCount > 0) {
@@ -36,7 +38,7 @@ export class CampaignsService {
       );
     }
 
-    const campaigns = await this.db.campaaigns.findMany({
+    const campaigns = await this.db.campaigns.findMany({
       where: {
         name: {
           contains: search?.trim().toLocaleLowerCase(),
@@ -49,7 +51,7 @@ export class CampaignsService {
         amountRequired: true,
         amountLeft: true,
         purpose: true,
-        CampaaignStatus: true,
+        campaignStatus: true,
         official: {
           select: {
             id: true,
@@ -64,10 +66,21 @@ export class CampaignsService {
   }
 
   async addCampaign(createCampaignDto: CreateCampaignDto) {
+    const official = await this.db.users.findUnique({
+      where: {
+        id: createCampaignDto.officialId,
+      },
+    });
+
+    if (!official?.isVerfied) {
+      throw new UnauthorizedException('not verfied user');
+    }
+
     try {
-      const newCampaign = await this.db.campaaigns.create({
+      const newCampaign = await this.db.campaigns.create({
         data: {
           ...createCampaignDto,
+          amountLeft: createCampaignDto.amountRequired,
         },
         select: {
           id: true,
@@ -75,7 +88,7 @@ export class CampaignsService {
           description: true,
           amountRequired: true,
           purpose: true,
-          CampaaignStatus: true,
+          campaignStatus: true,
           officialId: true,
         },
       });
@@ -86,7 +99,7 @@ export class CampaignsService {
   }
 
   async getCampaign(id: string) {
-    const campaigns = await this.db.campaaigns.findUnique({
+    const campaigns = await this.db.campaigns.findUnique({
       where: {
         id,
       },
@@ -98,7 +111,7 @@ export class CampaignsService {
         amountRaised: true,
         amountLeft: true,
         purpose: true,
-        CampaaignStatus: true,
+        campaignStatus: true,
         official: {
           select: {
             id: true,
@@ -108,7 +121,7 @@ export class CampaignsService {
         },
         donations: {
           where: {
-            donationStatus: DonationStatus.SUCCESSFUL,
+            donationStatus: DonationStatusEnum.SUCCESSFUL,
           },
           orderBy: {
             donatedAt: 'desc',
@@ -124,7 +137,7 @@ export class CampaignsService {
   }
 
   async editCampaign(id: string, editCampaignDto: EditCampaignDto) {
-    const editedCampaign = await this.db.campaaigns.update({
+    const editedCampaign = await this.db.campaigns.update({
       where: {
         id,
       },
@@ -137,7 +150,7 @@ export class CampaignsService {
         description: true,
         amountRequired: true,
         purpose: true,
-        CampaaignStatus: true,
+        campaignStatus: true,
         officialId: true,
       },
     });
@@ -145,10 +158,10 @@ export class CampaignsService {
   }
 
   async deleteCampaign(id: string) {
-    const campaignToDelete = await this.db.campaaigns.findFirst({
+    const campaignToDelete = await this.db.campaigns.findFirst({
       where: {
         id,
-        CampaaignStatus: CampaaignStatus.COMPLETED,
+        campaignStatus: CampaignStatusEnum.COMPLETED,
       },
     });
 
@@ -158,12 +171,12 @@ export class CampaignsService {
       );
     }
 
-    const deletedCampaign = await this.db.campaaigns.delete({
+    const deletedCampaign = await this.db.campaigns.delete({
       where: {
         id,
       },
     });
 
-    return `User ${deletedCampaign.name} was deleted successfully!`;
+    return `Campaign ${deletedCampaign.name} was deleted successfully!`;
   }
 }

@@ -1,9 +1,9 @@
-export enum userRoles {
+export enum UserRolesEnum {
   OFFICIAL = 'OFFICIAL',
   ADMIN = 'ADMIN',
 }
 
-export enum CampaignPurpose {
+export enum CampaignPurposeEnum {
   MEDICAL_EXPENSES = 'MEDICAL_EXPENSES',
   HUMANITARIAN_AID = 'HUMANITARIAN_AID',
   SOCIAL_JUSTICE_CAUSES = 'SOCIAL_JUSTICE_CAUSES',
@@ -11,12 +11,12 @@ export enum CampaignPurpose {
   DISASTER_RELIEF = 'DISASTER_RELIEF',
 }
 
-export enum CampaaignStatus {
+export enum CampaignStatusEnum {
   OPEN = 'OPEN',
   COMPLETED = 'COMPLETED',
 }
 
-export enum DonationStatus {
+export enum DonationStatusEnum {
   PENDING = 'PENDING',
   SUCCESSFUL = 'SUCCESSFUL',
   FAILED = 'FAILED',

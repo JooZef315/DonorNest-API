@@ -1,2 +1,2 @@
 -- DropIndex
-DROP INDEX "Campaaigns_officialId_key";
+DROP INDEX "campaigns_officialId_key";

@@ -1,5 +1,5 @@
 import { IsEnum, IsInt, IsOptional, IsPositive } from 'class-validator';
-import { CampaaignStatus } from 'src/common/enum';
+import { CampaignStatusEnum } from 'src/common/enum';
 
 export class EditCampaignDto {
   @IsOptional()
@@ -8,6 +8,6 @@ export class EditCampaignDto {
   amountRequired: number;
 
   @IsOptional()
-  @IsEnum(CampaaignStatus)
-  CampaaignStatus: CampaaignStatus;
+  @IsEnum(CampaignStatusEnum)
+  campaignStatus: CampaignStatusEnum;
 }

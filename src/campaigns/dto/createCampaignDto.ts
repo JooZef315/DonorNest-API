@@ -9,7 +9,7 @@ import {
   IsUUID,
   MaxLength,
 } from 'class-validator';
-import { CampaignPurpose } from 'src/common/enum';
+import { CampaignPurposeEnum } from 'src/common/enum';
 
 export class CreateCampaignDto {
   @IsNotEmpty()
@@ -28,8 +28,8 @@ export class CreateCampaignDto {
   amountRequired: number;
 
   @IsNotEmpty()
-  @IsEnum(CampaignPurpose)
-  purpose: CampaignPurpose;
+  @IsEnum(CampaignPurposeEnum)
+  purpose: CampaignPurposeEnum;
 
   @IsNotEmpty()
   @IsUUID()

@@ -1,12 +1,13 @@
 import * as bcrypt from 'bcryptjs';
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
 import { DbService } from 'src/db/db.service';
 import { CreateUserDto } from './dto/createUserDto';
-import { userRoles } from 'src/common/enum';
+import { CampaignStatusEnum, UserRolesEnum } from 'src/common/enum';
 import { EditUserDto } from './dto/editUserDto';
 import { ConfigService } from '@nestjs/config';
 import { UploadClient } from '@uploadcare/upload-client';
@@ -22,14 +23,14 @@ export class UsersService {
     const users = await this.db.users.findMany({
       where: {
         role: {
-          equals: userRoles.OFFICIAL,
+          equals: UserRolesEnum.OFFICIAL,
         },
       },
       select: {
         id: true,
         name: true,
         isVerfied: true,
-        campaaign: {
+        campaign: {
           select: {
             id: true,
             name: true,
@@ -68,7 +69,7 @@ export class UsersService {
         hashedPassword,
         officialIdPic,
         isVerfied: false,
-        role: userRoles.OFFICIAL,
+        role: UserRolesEnum.OFFICIAL,
       },
       select: {
         id: true,
@@ -94,13 +95,13 @@ export class UsersService {
         email: true,
         role: true,
         isVerfied: true,
-        campaaign: {
+        campaign: {
           select: {
             id: true,
             name: true,
             purpose: true,
             amountLeft: true,
-            CampaaignStatus: true,
+            campaignStatus: true,
           },
         },
       },
@@ -130,6 +131,23 @@ export class UsersService {
   }
 
   async deleteUser(uid: string) {
+    const userOpenCampaigns = await this.db.campaigns.findMany({
+      where: {
+        AND: [
+          {
+            officialId: uid,
+          },
+          {
+            campaignStatus: CampaignStatusEnum.OPEN,
+          },
+        ],
+      },
+    });
+
+    if (userOpenCampaigns.length) {
+      throw new ForbiddenException('user still has OPEN campaigns');
+    }
+
     const deletedUser = await this.db.users.delete({
       where: {
         id: uid,

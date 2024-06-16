@@ -13,14 +13,14 @@ export class campaignExistsPipe implements PipeTransform {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async transform(value: string, metadata: ArgumentMetadata) {
     if (metadata.type == 'param') {
-      const campaaign = await this.db.campaaigns.findUnique({
+      const campaign = await this.db.campaigns.findUnique({
         where: {
           id: value,
         },
       });
 
-      if (!campaaign) {
-        throw new BadRequestException('id not correct!');
+      if (!campaign) {
+        throw new BadRequestException('campaign id is not correct!');
       }
     }
 
