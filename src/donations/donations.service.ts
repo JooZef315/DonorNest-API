@@ -2,10 +2,14 @@ import { Injectable, NotAcceptableException } from '@nestjs/common';
 import { DbService } from 'src/db/db.service';
 import { CreateDonationDto } from './dto/createDonationDto';
 import { CampaignStatusEnum } from 'src/common/enum';
+import { StripeService } from 'src/stripe/stripe.service';
 
 @Injectable()
 export class DonationsService {
-  constructor(private db: DbService) {}
+  constructor(
+    private db: DbService,
+    private stripe: StripeService,
+  ) {}
 
   async getDonations(campaignId: string) {
     const donations = await this.db.donations.findMany({
@@ -38,58 +42,68 @@ export class DonationsService {
       campaign.campaignStatus == CampaignStatusEnum.COMPLETED
     ) {
       throw new NotAcceptableException(
-        'your donation is more the the amount required',
+        'Your Donation is more than The Tmount Required',
       );
     }
 
-    const newDonation = await this.db.donations.create({
-      data: {
-        ...createDonationDto,
-        campaignId,
-        stripePaymentId: '5555',
-      },
-      select: {
-        id: true,
-        amount: true,
-        message: true,
-        donationStatus: true,
-        stripePaymentId: true,
-        donatedAt: true,
-      },
-    });
+    const session = await this.stripe.checkout(
+      createDonationDto.amount,
+      campaign.name,
+    );
 
-    const campaignAfterDonation = await this.db.campaigns.update({
-      where: {
-        id: campaignId,
-      },
-      data: {
-        amountRaised: {
-          increment: createDonationDto.amount,
-        },
-        amountLeft: {
-          decrement: createDonationDto.amount,
-        },
-      },
-    });
+    return {
+      payment_intent: session.payment_intent,
+      id: session.id,
+      url: session.url,
+    };
+    // const newDonation = await this.db.donations.create({
+    //   data: {
+    //     ...createDonationDto,
+    //     campaignId,
+    //     stripePaymentId: '555555',
+    //   },
+    //   select: {
+    //     id: true,
+    //     amount: true,
+    //     message: true,
+    //     donationStatus: true,
+    //     stripePaymentId: true,
+    //     donatedAt: true,
+    //   },
+    // });
 
-    if (campaignAfterDonation.amountLeft == 0) {
-      await this.db.campaigns.update({
-        where: {
-          id: campaignId,
-        },
-        data: {
-          campaignStatus: CampaignStatusEnum.COMPLETED,
-        },
-      });
+    // const campaignAfterDonation = await this.db.campaigns.update({
+    //   where: {
+    //     id: campaignId,
+    //   },
+    //   data: {
+    //     amountRaised: {
+    //       increment: createDonationDto.amount,
+    //     },
+    //     amountLeft: {
+    //       decrement: createDonationDto.amount,
+    //     },
+    //   },
+    // });
 
-      const DonorNestMessage = `Your Donation COMPLETED the ${campaignAfterDonation.name} Campaign`;
+    // if (campaignAfterDonation.amountLeft == 0) {
+    //   await this.db.campaigns.update({
+    //     where: {
+    //       id: campaignId,
+    //     },
+    //     data: {
+    //       campaignStatus: CampaignStatusEnum.COMPLETED,
+    //     },
+    //   });
 
-      return {
-        DonorNestMessage,
-        newDonation,
-      };
-    }
+    // const DonorNestMessage = `Your Donation COMPLETED the ${campaignAfterDonation.name} Campaign`;
 
-    return newDonation;
+    // return {
+    //   DonorNestMessage,
+    //   newDonation,
+    // };
+    // }
+
+    return 'newDonation';
   }
 }

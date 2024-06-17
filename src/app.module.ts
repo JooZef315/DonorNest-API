@@ -7,6 +7,7 @@ import { CampaignsModule } from './campaigns/campaigns.module';
 import { DonationsModule } from './donations/donations.module';
 import { DbModule } from './db/db.module';
 import { ConfigModule } from '@nestjs/config';
+import { StripeModule } from './stripe/stripe.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { ConfigModule } from '@nestjs/config';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    StripeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
