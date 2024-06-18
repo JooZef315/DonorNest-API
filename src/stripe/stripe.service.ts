@@ -1,5 +1,10 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { CampaignStatusEnum, DonationStatusEnum } from 'src/common/enum';
 import { DbService } from 'src/db/db.service';
 import Stripe from 'stripe';
 
@@ -16,13 +21,10 @@ export class StripeService {
     });
   }
 
-  hello() {
-    console.log('hi stripe');
-  }
-
-  async checkout(amount: number, campaignName: string) {
+  async checkout(amount: number, campaignName: string, donationId: number) {
     const success_url = this.config.get<'sstring'>('SUCCESS_URL');
     const cancel_url = this.config.get<'sstring'>('CANCEL_URL');
+
     const session = await this.stripe.checkout.sessions.create({
       line_items: [
         {
@@ -31,21 +33,16 @@ export class StripeService {
             unit_amount: amount * 100, //in cents
             currency: 'usd',
             product_data: {
-              name: `donation to ${campaignName} campaign`,
+              name: `A Donation to ${campaignName} Campaign, THANK YOU!`,
             },
           },
         },
       ],
       mode: 'payment',
-      success_url,
-      cancel_url,
+      success_url: `${success_url}/${donationId}`,
+      cancel_url: `${cancel_url}/${donationId}`,
     });
 
-    return session;
-  }
-
-  async retrieveCheckoutSession(sessionId: string) {
-    const session = await this.stripe.checkout.sessions.retrieve(sessionId);
     return session;
   }
 
@@ -62,23 +59,63 @@ export class StripeService {
     return event;
   }
 
-  async handlePaymentSucceeded(session: Stripe.Checkout.Session) {
-    try {
-      //   const session = await this.retrieveCheckoutSession(sessionId);
-      console.log('successed!');
-      console.log(session);
-    } catch (error) {
-      console.log(error?.message);
+  async handlePaymentSucceeded(sessionId: string) {
+    const donation = await this.db.donations.findFirst({
+      where: { stripePaymentId: sessionId },
+    });
+
+    if (!donation) {
+      throw new BadRequestException('session not found!');
+    }
+
+    await this.db.donations.update({
+      where: {
+        id: donation.id,
+      },
+      data: {
+        donationStatus: DonationStatusEnum.SUCCESSFUL,
+      },
+    });
+
+    const campaignAfterDonation = await this.db.campaigns.update({
+      where: {
+        id: donation.campaignId,
+      },
+      data: {
+        amountRaised: {
+          increment: donation.amount,
+        },
+        amountLeft: {
+          decrement: donation.amount,
+        },
+      },
+    });
+
+    if (campaignAfterDonation.amountLeft == 0) {
+      await this.db.campaigns.update({
+        where: {
+          id: donation.campaignId,
+        },
+        data: {
+          campaignStatus: CampaignStatusEnum.COMPLETED,
+        },
+      });
     }
   }
 
-  async handlePaymentFailed(session: Stripe.Checkout.Session) {
+  async handlePaymentFailed(donationId: number) {
     try {
-      //   const session = await this.retrieveCheckoutSession(sessionId);
-      console.log('failed!');
-      console.log(session);
+      await this.db.donations.update({
+        where: {
+          id: donationId,
+          donationStatus: DonationStatusEnum.PENDING,
+        },
+        data: {
+          donationStatus: DonationStatusEnum.FAILED,
+        },
+      });
     } catch (error) {
-      console.log(error?.message);
+      throw new ForbiddenException();
     }
   }
 }

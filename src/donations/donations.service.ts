@@ -42,68 +42,40 @@ export class DonationsService {
       campaign.campaignStatus == CampaignStatusEnum.COMPLETED
     ) {
       throw new NotAcceptableException(
-        'Your Donation is more than The Tmount Required',
+        'Your Donation is more than The amount Required',
       );
     }
+
+    const newDonation = await this.db.donations.create({
+      data: {
+        ...createDonationDto,
+        campaignId,
+        stripePaymentId: 'null',
+      },
+      select: {
+        id: true,
+        amount: true,
+        message: true,
+        donationStatus: true,
+        stripePaymentId: true,
+        donatedAt: true,
+      },
+    });
 
     const session = await this.stripe.checkout(
       createDonationDto.amount,
       campaign.name,
+      newDonation.id,
     );
 
-    return {
-      payment_intent: session.payment_intent,
-      id: session.id,
-      url: session.url,
-    };
-    // const newDonation = await this.db.donations.create({
-    //   data: {
-    //     ...createDonationDto,
-    //     campaignId,
-    //     stripePaymentId: '555555',
-    //   },
-    //   select: {
-    //     id: true,
-    //     amount: true,
-    //     message: true,
-    //     donationStatus: true,
-    //     stripePaymentId: true,
-    //     donatedAt: true,
-    //   },
-    // });
+    //add session  id
+    const newDonationWithSessionId = await this.db.donations.update({
+      where: { id: newDonation.id },
+      data: {
+        stripePaymentId: session.id,
+      },
+    });
 
-    // const campaignAfterDonation = await this.db.campaigns.update({
-    //   where: {
-    //     id: campaignId,
-    //   },
-    //   data: {
-    //     amountRaised: {
-    //       increment: createDonationDto.amount,
-    //     },
-    //     amountLeft: {
-    //       decrement: createDonationDto.amount,
-    //     },
-    //   },
-    // });
-
-    // if (campaignAfterDonation.amountLeft == 0) {
-    //   await this.db.campaigns.update({
-    //     where: {
-    //       id: campaignId,
-    //     },
-    //     data: {
-    //       campaignStatus: CampaignStatusEnum.COMPLETED,
-    //     },
-    //   });
-
-    // const DonorNestMessage = `Your Donation COMPLETED the ${campaignAfterDonation.name} Campaign`;
-
-    // return {
-    //   DonorNestMessage,
-    //   newDonation,
-    // };
-    // }
-
-    return 'newDonation';
+    return { donationUrl: session.url, donation: newDonationWithSessionId };
   }
 }
