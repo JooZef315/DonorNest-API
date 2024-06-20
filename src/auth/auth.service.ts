@@ -33,12 +33,23 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  refresh() {
-    return 'refresh!';
-  }
+  async refresh(userId: string) {
+    const user = await this.db.users.findUnique({
+      where: { id: userId },
+    });
 
-  logout() {
-    return 'logout!';
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
+    const payload: JwtPayload = {
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+    };
+
+    const accessToken = this.generateJwt(payload, 'ACCESS_TOKEN_SECRET', '1m');
+    return { accessToken };
   }
 
   async validateUser(email: string, password: string) {
