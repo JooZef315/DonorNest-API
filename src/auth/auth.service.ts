@@ -19,23 +19,15 @@ export class AuthService {
       loginDto.password,
     );
 
-    const ACCESS_TOKEN_SECRET = this.config.get<'string'>(
+    const accessToken = this.generateJwt(
+      validatedUserPayload,
       'ACCESS_TOKEN_SECRET',
+      '1m',
     );
-    const REFRESH_TOKEN_SECRET = this.config.get<'string'>(
-      'REFRESH_TOKEN_SECRET',
-    );
-
-    const accessToken = this.jwt.sign(validatedUserPayload, {
-      secret: ACCESS_TOKEN_SECRET,
-      expiresIn: '1m',
-    });
-    const refreshToken = this.jwt.sign(
+    const refreshToken = this.generateJwt(
       { userId: validatedUserPayload.userId },
-      {
-        secret: REFRESH_TOKEN_SECRET,
-        expiresIn: '7d',
-      },
+      'REFRESH_TOKEN_SECRET',
+      '7d',
     );
 
     return { accessToken, refreshToken };
@@ -73,5 +65,18 @@ export class AuthService {
     };
 
     return payload;
+  }
+
+  generateJwt(
+    payload: JwtPayload | { userId: string },
+    secretName: string,
+    expiresInTime: string,
+  ) {
+    const secret = this.config.get<'string'>(secretName);
+    const token = this.jwt.sign(payload, {
+      secret,
+      expiresIn: expiresInTime,
+    });
+    return token;
   }
 }
