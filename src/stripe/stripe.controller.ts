@@ -12,7 +12,7 @@ import {
 import { StripeService } from './stripe.service';
 import { Request } from 'express';
 import Stripe from 'stripe';
-import { DonationStatusEnum } from 'src/common/enum';
+import { DonationStatusEnum } from 'src/common/enums';
 import { donationExistsPipe } from 'src/common/pipes/donationExists.pipe';
 
 @Controller('payment')
@@ -31,14 +31,7 @@ export class StripeController {
 
     const session: Stripe.Checkout.Session = event.data.object;
 
-    console.log(
-      'type: ',
-      event.type,
-      ' id: ',
-      session.id,
-      'intent: ',
-      session.payment_intent,
-    );
+    console.log('type: ', event.type, ' id: ', session.id);
 
     try {
       // Handle the event

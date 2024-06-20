@@ -4,7 +4,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { CampaignStatusEnum, DonationStatusEnum } from 'src/common/enum';
+import { CampaignStatusEnum, DonationStatusEnum } from 'src/common/enums';
 import { DbService } from 'src/db/db.service';
 import Stripe from 'stripe';
 

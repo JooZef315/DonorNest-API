@@ -1,7 +1,7 @@
 import { Injectable, NotAcceptableException } from '@nestjs/common';
 import { DbService } from 'src/db/db.service';
 import { CreateDonationDto } from './dto/createDonationDto';
-import { CampaignStatusEnum } from 'src/common/enum';
+import { CampaignStatusEnum } from 'src/common/enums';
 import { StripeService } from 'src/stripe/stripe.service';
 
 @Injectable()
@@ -50,7 +50,7 @@ export class DonationsService {
       data: {
         ...createDonationDto,
         campaignId,
-        stripePaymentId: 'null',
+        stripePaymentId: 'placeholder',
       },
       select: {
         id: true,

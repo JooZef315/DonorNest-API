@@ -17,7 +17,7 @@ import { CampaignsService } from './campaigns.service';
 import { CreateCampaignDto } from './dto/createCampaignDto';
 import { campaignExistsPipe } from 'src/common/pipes/campaignExists.pipe';
 import { EditCampaignDto } from './dto/editCampaignDto';
-import { CampaignPurposeEnum } from 'src/common/enum';
+import { CampaignPurposeEnum } from 'src/common/enums';
 
 @Controller('campaigns')
 export class CampaignsController {

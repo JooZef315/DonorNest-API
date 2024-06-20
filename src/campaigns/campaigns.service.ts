@@ -8,7 +8,7 @@ import {
 import { DbService } from 'src/db/db.service';
 import { CreateCampaignDto } from './dto/createCampaignDto';
 import { createPrismaErrorMessage } from 'src/common/utils/createPrismaErrorMessage';
-import { CampaignStatusEnum, DonationStatusEnum } from 'src/common/enum';
+import { CampaignStatusEnum, DonationStatusEnum } from 'src/common/enums';
 import { EditCampaignDto } from './dto/editCampaignDto';
 
 @Injectable()

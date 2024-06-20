@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { DbService } from 'src/db/db.service';
 import { CreateUserDto } from './dto/createUserDto';
-import { CampaignStatusEnum, UserRolesEnum } from 'src/common/enum';
+import { CampaignStatusEnum, UserRolesEnum } from 'src/common/enums';
 import { EditUserDto } from './dto/editUserDto';
 import { ConfigService } from '@nestjs/config';
 import { UploadClient } from '@uploadcare/upload-client';

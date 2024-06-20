@@ -9,7 +9,7 @@ import {
   IsUUID,
   MaxLength,
 } from 'class-validator';
-import { CampaignPurposeEnum } from 'src/common/enum';
+import { CampaignPurposeEnum } from 'src/common/enums';
 
 export class CreateCampaignDto {
   @IsNotEmpty()
