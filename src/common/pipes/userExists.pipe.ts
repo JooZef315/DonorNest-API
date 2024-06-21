@@ -10,7 +10,6 @@ import { DbService } from 'src/db/db.service';
 export class userExistsPipe implements PipeTransform {
   constructor(private readonly db: DbService) {}
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async transform(value: string, metadata: ArgumentMetadata) {
     if (metadata.type == 'param') {
       const user = await this.db.users.findUnique({

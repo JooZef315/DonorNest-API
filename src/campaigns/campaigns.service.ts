@@ -65,10 +65,10 @@ export class CampaignsService {
     return campaigns;
   }
 
-  async addCampaign(createCampaignDto: CreateCampaignDto) {
+  async addCampaign(createCampaignDto: CreateCampaignDto, userId: string) {
     const official = await this.db.users.findUnique({
       where: {
-        id: createCampaignDto.officialId,
+        id: userId,
       },
     });
 
@@ -80,6 +80,7 @@ export class CampaignsService {
       const newCampaign = await this.db.campaigns.create({
         data: {
           ...createCampaignDto,
+          officialId: userId,
           amountLeft: createCampaignDto.amountRequired,
         },
         select: {

@@ -21,3 +21,10 @@ export enum DonationStatusEnum {
   SUCCESSFUL = 'SUCCESSFUL',
   FAILED = 'FAILED',
 }
+
+export enum AuthRolesEnum {
+  ADMIN = 'ADMIN',
+  VERIFIED = 'VERIFIED',
+  CAMPAIGN_OWNER = 'CAMPAIGN_OWNER',
+  PROFILE_OWNER = 'PROFILE_OWNER',
+}

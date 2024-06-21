@@ -10,20 +10,12 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/loginDto';
-import { JwtGuard } from 'src/common/guards/jwt.guard';
 import { Request, Response } from 'express';
 import { RefreshJwtGuard } from 'src/common/guards/refreshJwt.guard';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
-
-  @UseGuards(JwtGuard)
-  @Get()
-  xx(@Req() req) {
-    console.log(req?.user);
-    return req?.user;
-  }
 
   @Post('login')
   async login(

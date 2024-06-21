@@ -22,7 +22,7 @@ export class AuthService {
     const accessToken = this.generateJwt(
       validatedUserPayload,
       'ACCESS_TOKEN_SECRET',
-      '1m',
+      '15m',
     );
     const refreshToken = this.generateJwt(
       { userId: validatedUserPayload.userId },
@@ -48,7 +48,7 @@ export class AuthService {
       role: user.role,
     };
 
-    const accessToken = this.generateJwt(payload, 'ACCESS_TOKEN_SECRET', '1m');
+    const accessToken = this.generateJwt(payload, 'ACCESS_TOKEN_SECRET', '15m');
     return { accessToken };
   }
 

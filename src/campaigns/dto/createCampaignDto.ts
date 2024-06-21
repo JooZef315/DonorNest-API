@@ -6,7 +6,6 @@ import {
   IsOptional,
   IsPositive,
   IsString,
-  IsUUID,
   MaxLength,
 } from 'class-validator';
 import { CampaignPurposeEnum } from 'src/common/enums';
@@ -30,8 +29,4 @@ export class CreateCampaignDto {
   @IsNotEmpty()
   @IsEnum(CampaignPurposeEnum)
   purpose: CampaignPurposeEnum;
-
-  @IsNotEmpty()
-  @IsUUID()
-  officialId: string;
 }
