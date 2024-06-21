@@ -6,10 +6,18 @@ services:
     working_dir: /app # Set the working directory inside the container to /app
     volumes:
       - .:/app # Mount the current directory to /app in the container
-      # - /app/node_modules  # Persist node_modules to avoid reinstalling dependencies on each build
     env_file:
       - .env # Load environment variables from the .env file
-    command: sh -c "npm install && npm run start:dev" # Command to run after the container starts
+    command: sh -c "npm install && npm run db:push && npm run start:dev" # Command to run after the container starts
+    develop:
+      watch:
+        - action: sync
+          path: ./
+          target: /app
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: ./package.json
     ports:
       - '3001:3001' # Map port 3000 of the host to port 3000 in the container
     depends_on:
@@ -18,4 +26,4 @@ services:
   db:
     image: nouchka/sqlite3 # Use a lightweight SQLite3 image
     volumes:
-      - ./prisma:/data # Mount the prisma directory to /data in the container
+      - ./prisma:/app/prisma # Mount the prisma directory to /data in the container
